@@ -7,13 +7,19 @@ import cn.hutool.core.stream.StreamUtil;
 import com.github.novicezk.midjourney.service.TaskStoreService;
 import com.github.novicezk.midjourney.support.Task;
 import com.github.novicezk.midjourney.support.TaskCondition;
+import com.github.novicezk.midjourney.util.AliyunOssUtil;
 
 import java.time.Duration;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 public class InMemoryTaskStoreServiceImpl implements TaskStoreService {
 	private final TimedCache<String, Task> taskMap;
+	
+	@Autowired
+	private AliyunOssUtil aliyunOssUtil;
 
 	public InMemoryTaskStoreServiceImpl(Duration timeout) {
 		this.taskMap = CacheUtil.newTimedCache(timeout.toMillis());
@@ -21,6 +27,9 @@ public class InMemoryTaskStoreServiceImpl implements TaskStoreService {
 
 	@Override
 	public void save(Task task) {
+		if(task != null && task.getImageUrl() != null && !"".equals(task.getImageUrl())) {
+			aliyunOssUtil.uploadImg(task.getImageUrl());
+		}
 		this.taskMap.put(task.getId(), task);
 	}
 
@@ -31,7 +40,11 @@ public class InMemoryTaskStoreServiceImpl implements TaskStoreService {
 
 	@Override
 	public Task get(String key) {
-		return this.taskMap.get(key);
+		Task task = this.taskMap.get(key);
+		if(task != null && task.getImageUrl() != null && !"".equals(task.getImageUrl())) {
+			aliyunOssUtil.uploadImg(task.getImageUrl());
+		}
+		return task;
 	}
 
 	@Override

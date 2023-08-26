@@ -23,6 +23,7 @@
         <knife4j.verison>4.1.0</knife4j.verison>
         <user-agent-utils.verison>1.21</user-agent-utils.verison>
         <httpclient.verison>4.5.14</httpclient.verison>
+        <aliyunoss.verison>3.15.1</aliyunoss.verison>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -111,6 +112,11 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+		    <groupId>com.aliyun.oss</groupId>
+		    <artifactId>aliyun-sdk-oss</artifactId>
+		    <version>${aliyunoss.verison}</version>
+		</dependency>
     </dependencies>
 
     <build>

@@ -3,11 +3,15 @@ package com.github.novicezk.midjourney.service.store;
 import com.github.novicezk.midjourney.service.TaskStoreService;
 import com.github.novicezk.midjourney.support.Task;
 import com.github.novicezk.midjourney.support.TaskCondition;
+import com.github.novicezk.midjourney.util.AliyunOssUtil;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -21,6 +25,9 @@ public class RedisTaskStoreServiceImpl implements TaskStoreService {
 
 	private final Duration timeout;
 	private final RedisTemplate<String, Task> redisTemplate;
+	
+	@Autowired
+	private AliyunOssUtil aliyunOssUtil;
 
 	public RedisTaskStoreServiceImpl(Duration timeout, RedisTemplate<String, Task> redisTemplate) {
 		this.timeout = timeout;
@@ -29,6 +36,9 @@ public class RedisTaskStoreServiceImpl implements TaskStoreService {
 
 	@Override
 	public void save(Task task) {
+		if(task != null && task.getImageUrl() != null && !"".equals(task.getImageUrl())) {
+			aliyunOssUtil.uploadImg(task.getImageUrl());
+		}
 		this.redisTemplate.opsForValue().set(getRedisKey(task.getId()), task, this.timeout);
 	}
 
@@ -39,7 +49,11 @@ public class RedisTaskStoreServiceImpl implements TaskStoreService {
 
 	@Override
 	public Task get(String id) {
-		return this.redisTemplate.opsForValue().get(getRedisKey(id));
+		Task task = this.redisTemplate.opsForValue().get(getRedisKey(id));
+		if(task != null && task.getImageUrl() != null && !"".equals(task.getImageUrl())) {
+			aliyunOssUtil.uploadImg(task.getImageUrl());
+		}
+		return task;
 	}
 
 	@Override

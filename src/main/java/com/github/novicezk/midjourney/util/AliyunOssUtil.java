@@ -146,8 +146,8 @@ public class AliyunOssUtil {
         try {
 			URL url = new URL(filePath);
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.setConnectTimeout(6000);
-			urlConnection.setReadTimeout(6000);
+			urlConnection.setConnectTimeout(60000);
+			urlConnection.setReadTimeout(60000);
 			if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				return null;
 			}
